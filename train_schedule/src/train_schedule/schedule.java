@@ -48,7 +48,7 @@ public class schedule {
 	 public void deleteStation(String name, String Station) { // удаление промежуточной станции
 		 if (allTrains.containsKey(name)) {
 			 if (allTrains.get(name).contains(Station)){
-				 if (!Station.equals(allTrains.get(name).getLast())) {
+				 if (!Station.equals(allTrains.get(name).getLast())) { // проверка не является ли удаляемая станция конечной
 					 allTrains.get(name).remove(Station);
 				 }
 				 else {
