@@ -61,7 +61,7 @@ public class schedule {
 			 return "Ошибка, такого поезда не существует";
 		 }
 	 }
-	 public int timeConverter(String time) { // преобразует время, и исключает ввод неверного времени
+	 public int timeConverter(String time) { // преобразует время в минуты, и исключает ввод неверного времени
 		 int hours = -1;
 		 int min = -1;
 		 boolean flag = true;
@@ -82,7 +82,7 @@ public class schedule {
 			 return hours*60+min;
 		 }
 	 }
-	 public String nearestTrain(String Station , String time) {
+	 public String nearestTrain(String Station , String time) { //находит имя ближайшего поезда по заданной станции и текущему времени времени
 		 int nearestTime = 1441; // больше чем максимальное количество минут в 1 дне, будет использоваться для хранения ближайшего времени
 		 String nearestName = "nothing";
 		 int currentTime = timeConverter(time);
@@ -90,12 +90,12 @@ public class schedule {
 		 allNames.addAll(allTrains.keySet());
 	     int i = 0;
 		 for (LinkedList<String> timeOfTrain : allTrains.values()) {
-			 int difference;
+			 int difference; // будет хранить минимальную разницу во времени
 			 if (timeConverter(timeOfTrain.getFirst()) - currentTime >= 0) { 
 				 difference = timeConverter(timeOfTrain.getFirst()) - currentTime;
 			 }
 			 else {
-				 difference = currentTime - timeConverter(timeOfTrain.getFirst());
+				 difference = 1440 - (currentTime - timeConverter(timeOfTrain.getFirst()));// если текущее время позднее времени поезда, значит поехать на нем можно будет только на следующий день
 			 }
 			 if ((allTrains.get(allNames.toArray()[i]).contains(Station) && (difference < nearestTime))) { //проверяет наличие станции в маршруте поезда и ищет минимальную разницу во времени
 				 nearestName = (String) allNames.toArray()[i];

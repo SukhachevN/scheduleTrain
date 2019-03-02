@@ -65,7 +65,7 @@ class Test {
 	        schedule.addStation("name4" , "Город 4");
 	        schedule.addStation("name4" , "Город 6");
 	        assertEquals("name1", schedule.nearestTrain("Город 1", "2:23"));
-	        assertEquals("name2", schedule.nearestTrain("Город 2" , "9:21"));
+	        assertEquals("name2", schedule.nearestTrain("Город 2" , "7:21"));
 	        assertEquals("Станция отсутствует", schedule.nearestTrain("Город 3", "8:52"));
 	        assertEquals("name3", schedule.nearestTrain("Город 6" , "9:51"));
 	        allTrains.clear();
