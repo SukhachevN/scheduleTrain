@@ -1,110 +1,83 @@
 package train_schedule;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
 public class schedule {
-	public Map<String, LinkedList<String>> allTrains; //расписание поездов
-	public schedule( Map<String, LinkedList<String>> allTrains) {
-		this.allTrains = allTrains;
+	private Map<String, TrainInfo> allTrains; //расписание поездов
+	public schedule( Map<String, TrainInfo> allTrains) {
+		this.allTrains = new HashMap<String,TrainInfo>() ;
 	}
-	public String addTrain(String name , String endStation , String time) {  // Добавление нового поезда, необходимо сразу указывать название поезда и конечную станцию
+	public boolean addTrain(String name , String endStation , String time) {  // Добавление нового поезда, необходимо сразу указывать название поезда и конечную станцию
 		if (!allTrains.containsKey(name)) { //проверка на наличие в расписании поезда с таким именем
-			LinkedList<String> trainStations = new LinkedList<String>(); 
-			if (timeConverter(time)!=-1) { // проверяет правильность введенного времени
-				trainStations.add(time); // первым элементом будет храниться время, чтобы не пришлось хранить его отдельно
-				trainStations.add(endStation); // последний элемент списка, который будет смещаться при добавлении новых станций(объяснение в addStation), и всегда будет последним
-				allTrains.put(name , trainStations);
-				return "Поезд добавлен";
+			LinkedList<ArrayList<String>> data = new LinkedList<ArrayList<String>>();
+			TrainInfo trainInfo = new TrainInfo(data); 
+			if (timeConverter(time) != null) { // проверяет правильность введенного времени
+				trainInfo.addTime(time);
+                trainInfo.addEndStation(endStation);
+				allTrains.put(name , trainInfo);
+				return true;
 			}
 		}
-		return "Поезд не добавлен" ;
+		return false;
 	}
 	
-	public String deleteTrain(String name) { //удаление поезда
+	public boolean deleteTrain(String name) { //удаление поезда
 		if (allTrains.containsKey(name)) { // проверка на наличие в расписании поезда с таким именем
 			allTrains.remove(name);
-			return "Поезд удален";
+			return true;
 		}
-			return "Ошибка, такого поезда не существует";
+			return false;
 	}
-	public String addStation(String name , String Station) { //добавление промежуточных станций
+	public boolean addStation(String name , String Station) { //добавление промежуточных станций
 		if (allTrains.containsKey(name)) { // проверка на наличие в расписании поезда с таким именем
-			if (!(allTrains.get(name).contains(Station))){ // проверка на наличие станции в маршруте поезда
-				allTrains.get(name).add(1, Station);//добавляет новую станцию, при этом конечная станция остается последней в списке
-				return "Станция добавлена";
-			}
-			else {
-				return "Такая станция уже добавлена";
+			if (!(allTrains.get(name).getStations().contains(Station) && !Station.equals(allTrains.get(name).getLastStation()))){ // проверка на наличие станции в маршруте поезда
+				allTrains.get(name).addStations(Station);//добавляет новую станцию, при этом конечная станция остается последней в списке
+				return true;
 			}
 		}
-		else {
-			return "Ошибка, такого поезда не существует";
-		}
+			return false;
 	}
-	 public String deleteStation(String name, String Station) { // удаление промежуточной станции
+	 public boolean deleteStation(String name, String Station) { // удаление промежуточной станции
 		 if (allTrains.containsKey(name)) {// проверка на наличие в расписании поезда с таким именем
-			 if (allTrains.get(name).contains(Station)){ // проверка на наличие станции в маршруте поезда
-				 if (!Station.equals(allTrains.get(name).getLast())) { // проверка не является ли удаляемая станция конечной
-					 allTrains.get(name).remove(Station);
-					 return "Станция удалена";
-				 }
-				 else {
-					 return "Ошибка, нельзя удалить конечную станцию";
-				 }
-			 }
-			 else {
-				 return "Ошибка, такой станции не существует";
+			 if (allTrains.get(name).getStations().contains(Station)){ // проверка на наличие станции в маршруте поезда
+					 allTrains.get(name).removeStation(Station);
+					 return true;
 			 }
 		 }
-		 else {
-			 return "Ошибка, такого поезда не существует";
-		 }
+			 return false;
 	 }
-	 public int timeConverter(String time) { // преобразует время в минуты, и исключает ввод неверного времени
-		 int hours = -1;
-		 int min = -1;
-		 boolean flag = true;
-		 for (String part : time.split(":")) {
-			 if (flag) {
-			  hours = Integer.parseInt(part);
-			  flag = false;
-			 }
-			 else {
-			  min = Integer.parseInt(part);
-			 }
-		 }
-		 if (!(hours >= 0 && hours <= 23 ) || !(min>= 0 && min<= 59)) {
-			 System.out.println("Неверное время");
-			 return -1;
-		 }
-		 else {
-			 return hours*60+min;
-		 }
+	 public Date timeConverter(String time) {//исключает ввод неверного времени и преобразует в формат даты
+		 DateFormat data = new SimpleDateFormat("dd.MM.yyyy H:mm:ss");
+		 try {
+			Date date = new Date(data.parse(time).getTime());
+			return date;
+		} catch (ParseException e) {
+			return null;
+		}
 	 }
 	 public String nearestTrain(String Station , String time) { //находит имя ближайшего поезда по заданной станции и текущему времени времени
-		 int nearestTime = 1441; // больше чем максимальное количество минут в 1 дне, будет использоваться для хранения ближайшего времени
-		 String nearestName = "nothing";
-		 int currentTime = timeConverter(time);
-		 LinkedList<String> allNames = new LinkedList<String>();
-		 allNames.addAll(allTrains.keySet());
-	     int i = 0;
-		 for (LinkedList<String> timeOfTrain : allTrains.values()) {
-			 int difference; // будет хранить минимальную разницу во времени
-			 if (timeConverter(timeOfTrain.getFirst()) - currentTime >= 0) { 
-				 difference = timeConverter(timeOfTrain.getFirst()) - currentTime;
+		 Date nearestTime = timeConverter("31.12.9999 23:59:00") ; 
+		 String nearestName = null;
+		 Date currentTime = timeConverter(time);
+		 Date trainTime = null;
+		 for (String name : allTrains.keySet()) {
+			 if (currentTime.before(timeConverter(allTrains.get(name).getTime()))) { //запоминает и преобразует время, только если время поезда позднее текущего времени
+				 trainTime = (timeConverter(allTrains.get(name).getTime()));
+				 if ((trainTime.before(nearestTime)) && trainTime.after(currentTime)) {
+					 if ((allTrains.get(name).getStations().contains(Station) || 
+							 Station.equals(allTrains.get(name).getLastStation()))) { //проверяет наличие станции в маршруте поезда и ищет минимальную разницу во времени
+							 nearestName = name;
+							 nearestTime = trainTime;
+						 }
+				 }
 			 }
-			 else {
-				 difference = 1440 - (currentTime - timeConverter(timeOfTrain.getFirst()));// если текущее время позднее времени поезда, значит поехать на нем можно будет только на следующий день
-			 }
-			 if ((allTrains.get(allNames.toArray()[i]).contains(Station) && (difference < nearestTime))) { //проверяет наличие станции в маршруте поезда и ищет минимальную разницу во времени
-				 nearestName = (String) allNames.toArray()[i];
-				 nearestTime = difference;
-			 }
-			 i++;
-		 }
-		 if (nearestName.equals("nothing")) { //если не произошло изменений, значит заданной станции нет ни у одного поезда
-			 return "Станция отсутствует";
 		 }
 		return nearestName;
 		 
