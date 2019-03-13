@@ -3,7 +3,6 @@ package train_schedule;
 import static org.junit.Assert.assertEquals;
 
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 class Test {
