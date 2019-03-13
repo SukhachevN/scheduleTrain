@@ -6,20 +6,21 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
-public class schedule {
+public class Schedule {
 	private Map<String, TrainInfo> allTrains; //расписание поездов
-	public schedule( Map<String, TrainInfo> allTrains) {
+	public Schedule( Map<String, TrainInfo> allTrains) {
 		this.allTrains = new HashMap<String,TrainInfo>() ;
 	}
 	public boolean addTrain(String name , String endStation , String time) {  // Добавление нового поезда, необходимо сразу указывать название поезда и конечную станцию
 		if (!allTrains.containsKey(name)) { //проверка на наличие в расписании поезда с таким именем
-			LinkedList<ArrayList<String>> data = new LinkedList<ArrayList<String>>();
-			TrainInfo trainInfo = new TrainInfo(data); 
+			ArrayList<String> data = new ArrayList<String>();
+			Date t = new Date();
+			String str = null ;
+			TrainInfo trainInfo = new TrainInfo(t , data , str); 
 			if (timeConverter(time) != null) { // проверяет правильность введенного времени
-				trainInfo.addTime(time);
+				trainInfo.addTime(timeConverter(time));
                 trainInfo.addEndStation(endStation);
 				allTrains.put(name , trainInfo);
 				return true;
@@ -37,7 +38,8 @@ public class schedule {
 	}
 	public boolean addStation(String name , String Station) { //добавление промежуточных станций
 		if (allTrains.containsKey(name)) { // проверка на наличие в расписании поезда с таким именем
-			if (!(allTrains.get(name).getStations().contains(Station) && !Station.equals(allTrains.get(name).getLastStation()))){ // проверка на наличие станции в маршруте поезда
+			TrainInfo info = allTrains.get(name);
+			if (!(info.getStations().contains(Station) && !Station.equals(info.getLastStation()))){ // проверка на наличие станции в маршруте поезда
 				allTrains.get(name).addStations(Station);//добавляет новую станцию, при этом конечная станция остается последней в списке
 				return true;
 			}
@@ -67,13 +69,14 @@ public class schedule {
 		 String nearestName = null;
 		 Date currentTime = timeConverter(time);
 		 Date trainTime = null;
-		 for (String name : allTrains.keySet()) {
-			 if (currentTime.before(timeConverter(allTrains.get(name).getTime()))) { //запоминает и преобразует время, только если время поезда позднее текущего времени
-				 trainTime = (timeConverter(allTrains.get(name).getTime()));
+		 for (Map.Entry train: allTrains.entrySet()) {
+			 TrainInfo info = (TrainInfo) train.getValue();
+			 if (currentTime.before((info).getTime())) { //запоминает и преобразует время, только если время поезда позднее текущего времени
+				 trainTime = (info).getTime();
 				 if ((trainTime.before(nearestTime)) && trainTime.after(currentTime)) {
-					 if ((allTrains.get(name).getStations().contains(Station) || 
-							 Station.equals(allTrains.get(name).getLastStation()))) { //проверяет наличие станции в маршруте поезда и ищет минимальную разницу во времени
-							 nearestName = name;
+					 if (((info).getStations().contains(Station) || 
+							 Station.equals((info).getLastStation()))) { //проверяет наличие станции в маршруте поезда и ищет минимальную разницу во времени
+							 nearestName = (String) train.getKey();
 							 nearestTime = trainTime;
 						 }
 				 }
