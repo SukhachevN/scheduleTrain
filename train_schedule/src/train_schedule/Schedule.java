@@ -17,8 +17,8 @@ public class Schedule {
 		if (!allTrains.containsKey(name)) { //проверка на наличие в расписании поезда с таким именем
 			ArrayList<String> data = new ArrayList<String>();
 			Date t = new Date();
-			String str = null ;
-			TrainInfo trainInfo = new TrainInfo(t , data , str); 
+			String s = null ;
+			TrainInfo trainInfo = new TrainInfo(t , data , s); 
 			if (timeConverter(time) != null) { // проверяет правильность введенного времени
 				trainInfo.addTime(timeConverter(time));
                 trainInfo.addEndStation(endStation);
