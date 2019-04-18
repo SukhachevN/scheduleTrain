@@ -76,10 +76,10 @@ public class Schedule {
 		Date trainTime = null;
 		for (Map.Entry train : allTrains.entrySet()) {
 			TrainInfo info = (TrainInfo) train.getValue();
-			if (currentTime.before((info).getTime())) { 
+			if (currentTime.before(info.getTime())) { 
 				trainTime = info.getTime();
 				if ((trainTime.before(nearestTime)) && trainTime.after(currentTime)) {
-					if (((info).getStations().contains(Station) || Station.equals((info).getLastStation()))) { 
+					if ((info.getStations().contains(Station) || Station.equals(info.getLastStation()))) { 
 						nearestName = (String) train.getKey();
 						nearestTime = trainTime;
 					}
