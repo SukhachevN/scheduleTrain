@@ -18,10 +18,8 @@ public class Schedule {
 	public boolean addTrain(String name, String endStation, String time) { 
 		if (!allTrains.containsKey(name)) { // проверка на наличие в расписании поезда с таким именем
 			ArrayList<String> data = new ArrayList<String>();
-			TrainInfo trainInfo = new TrainInfo(null, data, null);
 			if (timeConverter(time) != null) { // проверяет правильность введенного времени
-				trainInfo.addTime(timeConverter(time));
-				trainInfo.addEndStation(endStation);
+				TrainInfo trainInfo = new TrainInfo(timeConverter(time), data, endStation);
 				allTrains.put(name, trainInfo);
 				return true;
 			}
@@ -41,7 +39,7 @@ public class Schedule {
 		if (allTrains.containsKey(name)) { // проверка на наличие в расписании поезда с таким именем
 			TrainInfo info = allTrains.get(name);
 			if (!(info.getStations().contains(Station) && !Station.equals(info.getLastStation()))) { 
-				allTrains.get(name).addStations(Station);
+				info.addStations(Station);
 				return true;
 			}
 		}
@@ -52,7 +50,7 @@ public class Schedule {
 		if (allTrains.containsKey(name)) {// проверка на наличие в расписании поезда с таким именем
 			TrainInfo info = allTrains.get(name);
 			if (info.getStations().contains(Station)) { // проверка на наличие станции в маршруте поезда
-				allTrains.get(name).removeStation(Station);
+				info.removeStation(Station);
 				return true;
 			}
 		}
